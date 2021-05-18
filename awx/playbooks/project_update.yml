@@ -157,6 +157,18 @@
   tasks:
 
     - block:
+        - name: detect pre_install_hook.(yml/yaml)
+          stat: path={{item}}
+          register: doesPreInstallHookExist
+          with_fileglob:
+            - "{{project_path|quote}}/roles/pre_install_hook.yml"
+            - "{{project_path|quote}}/roles/pre_install_hook.yaml"
+            
+        - name: include roles/pre_install_hook.(yml/yaml)
+          include: "{{ item.item }}"
+          with_items: "{{ doesPreInstallHookExist.results }}"
+          when: item.stat.exists
+          
         - name: fetch galaxy roles from requirements.(yml/yaml)
           command: >
             ansible-galaxy role install -r {{ item }}
